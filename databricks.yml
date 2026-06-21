@@ -1,0 +1,23 @@
+
+bundle:
+  name: engineering-intelligence-platform
+
+targets:
+  dev:
+    default: true
+    workspace:
+      host: ${env.DATABRICKS_HOST}
+
+resources:
+  jobs:
+    engineering_intelligence_job:
+      name: engineering_intelligence_job
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "3"
+      tasks:
+        - task_key: orchestrator
+          environment_key: default
+          spark_python_task:
+            python_file: notebooks/orchestrator/00_orchestrator.py

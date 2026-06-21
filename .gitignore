@@ -1,0 +1,7 @@
+.bundle/
+.vscode/
+__pycache__/
+*.pyc
+.env
+dist/
+target/
