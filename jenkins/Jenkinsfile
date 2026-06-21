@@ -1,72 +1,82 @@
 pipeline {
 
-    agent any
+```
+agent any
 
-    environment {
-        DATABRICKS_HOST = credentials('DATABRICKS_HOST')
-        DATABRICKS_TOKEN = credentials('DATABRICKS_TOKEN')
-    }
+environment {
+    DATABRICKS_HOST = credentials('DATABRICKS_HOST')
+    DATABRICKS_TOKEN = credentials('DATABRICKS_TOKEN')
+}
 
-    options {
-        timestamps()
-    }
+options {
+    timestamps()
+}
 
-    stages {
+stages {
 
-        stage('Checkout') {
-            steps {
-                checkout scm
-                sh 'pwd'
-                sh 'ls -la'
-            }
-        }
+    stage('Checkout') {
+        steps {
 
-        stage('Environment Info') {
-            steps {
-                sh 'whoami'
-                sh 'databricks version'
-            }
-        }
+            git(
+                branch: 'main',
+                url: 'https://github.com/vjava/engineering-intelligence-platform.git'
+            )
 
-        stage('Verify Project') {
-            steps {
-                sh '''
-                if [ ! -f databricks.yml ]; then
-                    echo "ERROR: databricks.yml not found"
-                    exit 1
-                fi
-                '''
-            }
-        }
-
-        stage('Validate Bundle') {
-            steps {
-                sh 'databricks bundle validate'
-            }
-        }
-
-        stage('Deploy Bundle') {
-            steps {
-                sh 'databricks bundle deploy --target dev'
-            }
-        }
-
-        stage('Run Job') {
-            steps {
-                sh 'databricks bundle run engineering_intelligence_job --target dev'
-            }
+            sh 'pwd'
+            sh 'ls -la'
         }
     }
 
-    post {
-        success {
-            echo 'Deployment Successful'
-        }
-        failure {
-            echo 'Deployment Failed'
-        }
-        always {
-            echo 'Pipeline Finished'
+    stage('Environment Info') {
+        steps {
+            sh 'whoami'
+            sh 'databricks version'
         }
     }
+
+    stage('Verify Project') {
+        steps {
+            sh '''
+            if [ ! -f databricks.yml ]; then
+                echo "ERROR: databricks.yml not found"
+                exit 1
+            fi
+            '''
+        }
+    }
+
+    stage('Validate Bundle') {
+        steps {
+            sh 'databricks bundle validate'
+        }
+    }
+
+    stage('Deploy Bundle') {
+        steps {
+            sh 'databricks bundle deploy --target dev'
+        }
+    }
+
+    stage('Run Job') {
+        steps {
+            sh 'databricks bundle run engineering_intelligence_job --target dev'
+        }
+    }
+}
+
+post {
+    success {
+        echo 'Deployment Successful'
+    }
+
+    failure {
+        echo 'Deployment Failed'
+    }
+
+    always {
+        echo 'Pipeline Finished'
+    }
+}
+```
+
 }
