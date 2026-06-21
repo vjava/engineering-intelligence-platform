@@ -7,27 +7,45 @@ pipeline {
         DATABRICKS_TOKEN = credentials('DATABRICKS_TOKEN')
     }
 
+    options {
+        timestamps()
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
                 checkout scm
+                sh 'pwd'
+                sh 'ls -la'
             }
         }
 
-        stage('Databricks Version') {
+        stage('Environment Info') {
             steps {
+                sh 'whoami'
                 sh 'databricks version'
             }
         }
 
-        stage('Validate') {
+        stage('Verify Project') {
+            steps {
+                sh '''
+                if [ ! -f databricks.yml ]; then
+                    echo "ERROR: databricks.yml not found"
+                    exit 1
+                fi
+                '''
+            }
+        }
+
+        stage('Validate Bundle') {
             steps {
                 sh 'databricks bundle validate'
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Bundle') {
             steps {
                 sh 'databricks bundle deploy --target dev'
             }
@@ -37,6 +55,18 @@ pipeline {
             steps {
                 sh 'databricks bundle run engineering_intelligence_job --target dev'
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment Successful'
+        }
+        failure {
+            echo 'Deployment Failed'
+        }
+        always {
+            echo 'Pipeline Finished'
         }
     }
 }
