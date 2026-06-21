@@ -1,30 +1,42 @@
-
 pipeline {
-  agent any
 
-  environment {
-    DATABRICKS_HOST = credentials('DATABRICKS_HOST')
-    DATABRICKS_TOKEN = credentials('DATABRICKS_TOKEN')
-  }
+    agent any
 
-  stages {
-
-    stage('Validate') {
-      steps {
-        sh 'databricks bundle validate'
-      }
+    environment {
+        DATABRICKS_HOST = credentials('DATABRICKS_HOST')
+        DATABRICKS_TOKEN = credentials('DATABRICKS_TOKEN')
     }
 
-    stage('Deploy') {
-      steps {
-        sh 'databricks bundle deploy'
-      }
-    }
+    stages {
 
-    stage('Run Job') {
-      steps {
-        sh 'databricks bundle run engineering_intelligence_job'
-      }
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Databricks Version') {
+            steps {
+                sh 'databricks version'
+            }
+        }
+
+        stage('Validate') {
+            steps {
+                sh 'databricks bundle validate'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'databricks bundle deploy --target dev'
+            }
+        }
+
+        stage('Run Job') {
+            steps {
+                sh 'databricks bundle run engineering_intelligence_job --target dev'
+            }
+        }
     }
-  }
 }
