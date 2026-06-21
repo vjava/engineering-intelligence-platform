@@ -15,17 +15,17 @@ options {
 stages {
 
     stage('Checkout') {
-        steps {
+    steps {
 
-            git(
-                branch: 'main',
-                url: 'https://github.com/vjava/engineering-intelligence-platform.git'
-            )
+        git(
+            branch: 'main',
+            url: 'https://github.com/vjava/engineering-intelligence-platform.git'
+        )
 
-            sh 'pwd'
-            sh 'ls -la'
-        }
+        sh 'pwd'
+        sh 'ls -la'
     }
+}
 
     stage('Environment Info') {
         steps {
